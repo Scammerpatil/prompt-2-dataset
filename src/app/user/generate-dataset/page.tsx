@@ -1,70 +1,124 @@
 "use client";
 import React, { useState } from "react";
 import { IconDatabase, IconDownload } from "@tabler/icons-react";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import toast from "react-hot-toast";
 
 const GenerateDatasetPage = () => {
-  const [prompt, setPrompt] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [prompt, setPrompt] = useState({
+    desc: "",
+    no_of_rows: 0,
+    no_of_columns: 0,
+    type: "",
+  });
 
   const handleGenerate = async () => {
-    if (!prompt.trim()) {
+    if (!prompt.desc.trim()) {
       toast.error("Please enter a project description.");
       return;
     }
 
-    setLoading(true);
-
     try {
-      const response = await axios.post(
-        "/api/generate-dataset",
-        {
-          project_description: prompt,
-        },
-        {
-          responseType: "blob", // Expecting a file (CSV)
-        }
-      );
+      const response = axios.post("/api/generate-dataset", prompt, {
+        responseType: "blob",
+      });
 
-      // Create a blob URL and trigger download
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "generated_dataset.csv";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      toast.success("Dataset downloaded successfully!");
+      toast.promise(response, {
+        loading: "Generating dataset...",
+        success: (data: AxiosResponse) => {
+          const url = window.URL.createObjectURL(new Blob([data.data]));
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `generated_dataset.${prompt.type}`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+        },
+        error: "Error generating dataset. Please try again.",
+      });
     } catch (error) {
       console.error("Error:", error);
       toast.error("Error generating dataset. Please try again.");
-    } finally {
-      setLoading(false);
     }
   };
 
   return (
-    <div className="w-full flex flex-col items-center justify-center gap-6 p-6">
-      <h1 className="text-3xl font-bold text-primary mb-4 flex items-center gap-2">
-        <IconDatabase size={24} /> Generate Dataset
+    <div className="w-full">
+      <h1 className="text-4xl font-bold text-primary mb-4 text-center uppercase">
+        Generate Dataset
       </h1>
+      <div className="px-10 space-y-4">
+        <label htmlFor="desc" className="form-control w-full">
+          <div className="label">
+            <span className="text-base">Describe your project</span>
+          </div>
+          <textarea
+            className="textarea textarea-bordered w-full text-base"
+            name="desc"
+            placeholder="Describe your project... (e.g., 'Detect brain stroke')"
+            value={prompt.desc}
+            onChange={(e) => setPrompt({ ...prompt, desc: e.target.value })}
+            rows={4}
+          />
+        </label>
 
-      <textarea
-        className="textarea textarea-bordered w-full max-w-lg text-base"
-        placeholder="Describe your project... (e.g., 'Detect brain stroke')"
-        value={prompt}
-        onChange={(e) => setPrompt(e.target.value)}
-        rows={4}
-      />
+        <label htmlFor="desc" className="form-control w-full">
+          <div className="label">
+            <span className="text-base">How many coloumns you need??</span>
+          </div>
+          <input
+            type="number"
+            className="input input-bordered w-full text-base"
+            placeholder="Number of columns"
+            value={prompt.no_of_columns}
+            min={10}
+            onChange={(e) => {
+              setPrompt({ ...prompt, no_of_columns: parseInt(e.target.value) });
+            }}
+          />
+        </label>
 
-      <button
-        className={`btn btn-primary ${loading ? "loading" : ""}`}
-        onClick={handleGenerate}
-        disabled={loading}
-      >
-        {loading ? "Generating..." : "Generate Dataset"}
-      </button>
+        <label htmlFor="desc" className="form-control w-full">
+          <div className="label">
+            <span className="text-base">How many rows you want??</span>
+          </div>
+          <input
+            type="number"
+            className="input input-bordered w-full text-base"
+            placeholder="Number of rows"
+            value={prompt.no_of_rows}
+            min={100}
+            onChange={(e) => {
+              setPrompt({ ...prompt, no_of_rows: parseInt(e.target.value) });
+            }}
+          />
+        </label>
+
+        <label htmlFor="desc" className="form-control w-full">
+          <div className="label">
+            <span className="text-base">What Format You prefer?</span>
+          </div>
+          <select
+            className="select select-bordered w-full text-base"
+            value={prompt.type}
+            onChange={(e) => {
+              setPrompt({ ...prompt, type: e.target.value });
+            }}
+          >
+            <option value="">Select Format</option>
+            <option value="csv">CSV</option>
+            <option value="json">JSON</option>
+            <option value="xml">XML</option>
+          </select>
+        </label>
+
+        <button
+          className="btn btn-primary w-full btn-outline"
+          onClick={handleGenerate}
+        >
+          Generate Dataset <IconDownload size={18} />
+        </button>
+      </div>
     </div>
   );
 };

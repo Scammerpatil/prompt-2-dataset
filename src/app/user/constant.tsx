@@ -20,23 +20,13 @@ export const SIDENAV_ITEMS: SideNavItem[] = [
     icon: <IconDatabase width="24" height="24" />,
   },
   {
-    title: "My Datasets",
-    path: "/user/my-datasets",
-    icon: <IconFileDownload width="24" height="24" />,
+    title: "Generate Image Dataset",
+    path: "/user/generate-image-dataset",
+    icon: <IconDatabase width="24" height="24" />,
   },
   {
     title: "Model Suggestions",
     path: "/user/model-suggestions",
     icon: <IconRobot width="24" height="24" />,
-  },
-  {
-    title: "Settings",
-    path: "/user/settings",
-    icon: <IconSettings width="24" height="24" />,
-  },
-  {
-    title: "Support",
-    path: "/user/support",
-    icon: <IconHelpCircle width="24" height="24" />,
   },
 ];

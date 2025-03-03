@@ -8,9 +8,9 @@ import React, { useState } from "react";
 import Image from "next/image";
 import axios from "axios";
 import {
-  IconCamper,
   IconChevronDown,
   IconChevronRight,
+  IconFileText,
   IconMenu,
 } from "@tabler/icons-react";
 import { useUser } from "@/context/UserContext";
@@ -59,7 +59,7 @@ const SideNav = ({ children }: { children: React.ReactNode }) => {
             <div className="flex-1 justify-between lg:hidden px-2">
               <h1 className="text-xl font-bold flex items-center">
                 <span className="h-7 w-7 ">
-                  <IconCamper size={28} className="text-base-content" />
+                  <IconFileText size={28} className="text-base-content" />
                 </span>
                 <span className="text-primary">Prompt</span>
                 <span className="text-accent">2</span>
@@ -136,12 +136,13 @@ const SideNav = ({ children }: { children: React.ReactNode }) => {
               className="flex h-16 w-full flex-row items-center justify-center space-x-3 border-b border-base-content md:justify-start md:px-6"
             >
               <span className="h-7 w-7 rounded-lg bg-base-200">
-                <IconCamper size={28} className="text-base-content" />
+                <IconFileText size={28} className="text-primary" />
               </span>
               <span className="text-xl font-bold text-base-content">
-                <h1 className="text-xl font-bold">
-                  <span className="text-primary">Travel</span>
-                  <span className="text-secondary">Finder</span>
+                <h1 className="text-xl font-bold flex items-center">
+                  <span className="text-primary">Prompt</span>
+                  <span className="text-accent">2</span>
+                  <span className="text-secondary">Dataset</span>
                 </h1>
               </span>
             </Link>

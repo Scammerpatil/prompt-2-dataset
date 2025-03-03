@@ -13,7 +13,7 @@ const Component = ({ children }: { children: React.ReactNode }) => {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta
           name="description"
-          content="Prompt-2-Dataset will essentially be an AI-driven dataset generator that takes in a user’s project idea and outputs a structured dataset along with model recommendations."
+          content="Prompt-2-Dataset will essentially be an AI-driven dataset generator that takes in a user's project idea and outputs a structured dataset along with model recommendations."
         />
       </head>
       <body className={`antialiased`}>

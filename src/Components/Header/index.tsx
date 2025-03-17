@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { IconFileText, IconChevronDown } from "@tabler/icons-react";
+import { IconFileText } from "@tabler/icons-react";
 import ThemeToggler from "./ThemeToggler";
 
 const Header = () => {

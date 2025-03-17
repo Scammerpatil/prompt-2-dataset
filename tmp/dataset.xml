@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<dataset>
+  <record>
+    <Patient_ID>Colin Rutherford</Patient_ID>
+    <MRN>lifestyle</MRN>
+    <Age>53</Age>
+    <Sex>Other</Sex>
+    <MRI_Series_ID>bob</MRI_Series_ID>
+    <Tumor_Location>Kidney</Tumor_Location>
+    <Tumor_Size_mm>Colon</Tumor_Size_mm>
+    <Tumor_Type>Kidney</Tumor_Type>
+    <Contrast_Administration>meadow</Contrast_Administration>
+    <Diagnosis>Malignant</Diagnosis>
+  </record>
+  <record>
+    <Patient_ID>Audrey Bartoletti</Patient_ID>
+    <MRN>accelerator</MRN>
+    <Age>29</Age>
+    <Sex>Male</Sex>
+    <MRI_Series_ID>SUV</MRI_Series_ID>
+    <Tumor_Location>Kidney</Tumor_Location>
+    <Tumor_Size_mm>Liver</Tumor_Size_mm>
+    <Tumor_Type>Colon</Tumor_Type>
+    <Contrast_Administration>conversation</Contrast_Administration>
+    <Diagnosis>Malignant</Diagnosis>
+  </record>
+  <record>
+    <Patient_ID>Willard Aufderhar</Patient_ID>
+    <MRN>hose</MRN>
+    <Age>37</Age>
+    <Sex>Female</Sex>
+    <MRI_Series_ID>calculus</MRI_Series_ID>
+    <Tumor_Location>Kidney</Tumor_Location>
+    <Tumor_Size_mm>Colon</Tumor_Size_mm>
+    <Tumor_Type>Brain</Tumor_Type>
+    <Contrast_Administration>sundae</Contrast_Administration>
+    <Diagnosis>Stage 4</Diagnosis>
+  </record>
+  <record>
+    <Patient_ID>Geneva Konopelski</Patient_ID>
+    <MRN>skeleton</MRN>
+    <Age>46</Age>
+    <Sex>Other</Sex>
+    <MRI_Series_ID>obedience</MRI_Series_ID>
+    <Tumor_Location>Lung</Tumor_Location>
+    <Tumor_Size_mm>Liver</Tumor_Size_mm>
+    <Tumor_Type>Brain</Tumor_Type>
+    <Contrast_Administration>minor</Contrast_Administration>
+    <Diagnosis>Stage 3</Diagnosis>
+  </record>
+  <record>
+    <Patient_ID>Stanley Rowe</Patient_ID>
+    <MRN>chiffonier</MRN>
+    <Age>34</Age>
+    <Sex>Other</Sex>
+    <MRI_Series_ID>ecliptic</MRI_Series_ID>
+    <Tumor_Location>Colon</Tumor_Location>
+    <Tumor_Size_mm>Kidney</Tumor_Size_mm>
+    <Tumor_Type>Brain</Tumor_Type>
+    <Contrast_Administration>e-mail</Contrast_Administration>
+    <Diagnosis>Stage 2</Diagnosis>
+  </record>
+  <record>
+    <Patient_ID>Stella Ondricka</Patient_ID>
+    <MRN>reasoning</MRN>
+    <Age>65</Age>
+    <Sex>Other</Sex>
+    <MRI_Series_ID>knitting</MRI_Series_ID>
+    <Tumor_Location>Lung</Tumor_Location>
+    <Tumor_Size_mm>Lung</Tumor_Size_mm>
+    <Tumor_Type>Kidney</Tumor_Type>
+    <Contrast_Administration>descent</Contrast_Administration>
+    <Diagnosis>Stage 3</Diagnosis>
+  </record>
+  <record>
+    <Patient_ID>Brandon Reichel</Patient_ID>
+    <MRN>flame</MRN>
+    <Age>82</Age>
+    <Sex>Female</Sex>
+    <MRI_Series_ID>puppet</MRI_Series_ID>
+    <Tumor_Location>Brain</Tumor_Location>
+    <Tumor_Size_mm>Liver</Tumor_Size_mm>
+    <Tumor_Type>Breast</Tumor_Type>
+    <Contrast_Administration>rosemary</Contrast_Administration>
+    <Diagnosis>Stage 4</Diagnosis>
+  </record>
+  <record>
+    <Patient_ID>Mr. Lewis Wunsch</Patient_ID>
+    <MRN>mom</MRN>
+    <Age>25</Age>
+    <Sex>Male</Sex>
+    <MRI_Series_ID>knitting</MRI_Series_ID>
+    <Tumor_Location>Lung</Tumor_Location>
+    <Tumor_Size_mm>Brain</Tumor_Size_mm>
+    <Tumor_Type>Kidney</Tumor_Type>
+    <Contrast_Administration>newsprint</Contrast_Administration>
+    <Diagnosis>Benign</Diagnosis>
+  </record>
+  <record>
+    <Patient_ID>Josh Gutmann</Patient_ID>
+    <MRN>lashes</MRN>
+    <Age>18</Age>
+    <Sex>Other</Sex>
+    <MRI_Series_ID>papa</MRI_Series_ID>
+    <Tumor_Location>Liver</Tumor_Location>
+    <Tumor_Size_mm>Liver</Tumor_Size_mm>
+    <Tumor_Type>Breast</Tumor_Type>
+    <Contrast_Administration>sundae</Contrast_Administration>
+    <Diagnosis>Malignant</Diagnosis>
+  </record>
+  <record>
+    <Patient_ID>Derek Dietrich</Patient_ID>
+    <MRN>grouper</MRN>
+    <Age>39</Age>
+    <Sex>Male</Sex>
+    <MRI_Series_ID>restaurant</MRI_Series_ID>
+    <Tumor_Location>Liver</Tumor_Location>
+    <Tumor_Size_mm>Liver</Tumor_Size_mm>
+    <Tumor_Type>Lung</Tumor_Type>
+    <Contrast_Administration>advancement</Contrast_Administration>
+    <Diagnosis>Stage 1</Diagnosis>
+  </record>
+</dataset>

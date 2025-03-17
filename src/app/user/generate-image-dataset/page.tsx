@@ -3,35 +3,24 @@ import React, { useState } from "react";
 import { IconDownload } from "@tabler/icons-react";
 import axios, { AxiosResponse } from "axios";
 import toast from "react-hot-toast";
+import Link from "next/link";
 
 const GenerateDatasetPage = () => {
+  const [path, setPath] = useState("");
   const [prompt, setPrompt] = useState({
-    image: "Dog",
-    size: "128*128*3", // Fixed default value
+    image: "Brain MRI",
+    size: "128*128*3",
+    num_images: 10,
   });
 
   const handleGenerate = async () => {
     try {
-      const responsePromise = axios.post(
-        "/api/generate-image-dataset",
-        prompt,
-        {
-          responseType: "blob",
-        }
-      );
+      const responsePromise = axios.post("/api/generate-image-dataset", prompt);
 
       await toast.promise(responsePromise, {
         loading: "Generating dataset...",
         success: async (data: AxiosResponse) => {
-          console.log("Data:", data);
-          const url = window.URL.createObjectURL(new Blob([data.data]));
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = `dog_image_dataset.zip`;
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-          window.URL.revokeObjectURL(url);
+          setPath(data.data.path);
           return "Dataset generated successfully";
         },
         error: "Error generating dataset. Please try again.",
@@ -51,7 +40,8 @@ const GenerateDatasetPage = () => {
         <label className="form-control w-full">
           <div className="label">
             <span className="text-base">
-              Since We can only provide dog images
+              Since We can only provide brain images, please select the image
+              type
             </span>
           </div>
           <input
@@ -80,13 +70,34 @@ const GenerateDatasetPage = () => {
             <option value="1024*1024*3">1024 X 1024 X 3</option>
           </select>
         </label>
-
+        <label className="form-control w-full">
+          <div className="label">
+            <span className="text-base">What number of images you want?</span>
+          </div>
+          <input
+            type="number"
+            className="input input-bordered w-full text-base"
+            value={prompt.num_images}
+            onChange={(e) =>
+              setPrompt({ ...prompt, num_images: parseInt(e.target.value) })
+            }
+          />
+        </label>
         <button
           className="btn btn-primary w-full btn-outline"
           onClick={handleGenerate}
         >
           Generate Images <IconDownload size={18} />
         </button>
+        {path && (
+          <a
+            href="/generated_images.zip"
+            className="btn btn-secondary w-full btn-outline"
+            download="generated_images.zip"
+          >
+            Download Dataset <IconDownload size={18} />
+          </a>
+        )}
       </div>
     </div>
   );

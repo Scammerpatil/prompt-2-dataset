@@ -7,131 +7,153 @@ import path from "path";
 import { faker } from "@faker-js/faker";
 import Fuse from "fuse.js";
 
-const extractColumnNames = (responseText: string): string[] => {
-  const matches = responseText.match(/\d+\.\s(.*?)(?=\n|$)/g);
-  return matches ? matches.map((m) => m.replace(/^\d+\.\s/, "").trim()) : [];
+const extractColumnsWithTypes = (
+  responseText: string
+): { name: string; type: string }[] => {
+  const matches = responseText.match(/\d+\.\s(.*?)\s-\s(.*?)(?=\n|$)/g);
+  return matches
+    ? matches.map((m) => {
+        const [_, name, type] = m.match(/\d+\.\s(.*?)\s-\s(.*)/) || [];
+        return { name: name.trim(), type: type.trim().toLowerCase() };
+      })
+    : [];
 };
 
-const generateDataset = (columns: string[], no_of_rows: number) => {
-  // Define generalized column categories
-  const columnCategories: Record<string, string[]> = {
-    ID: ["id", "patient", "record", "user_id"],
-    Name: ["name", "fullname", "patient_name", "person"],
-    Email: ["email", "mail", "contact_email"],
-    Phone: ["phone", "contact", "mobile", "telephone"],
-    Address: ["address", "location", "residence"],
-    City: ["city", "town"],
-    Country: ["country", "nation"],
-    Age: ["age", "years", "patient_age"],
-    Date: ["date", "timestamp", "dob", "scan_date"],
-    Gender: ["gender", "sex"],
-    Price: ["price", "salary", "cost", "amount", "fee"],
-    Company: ["company", "organization", "employer"],
-    Job: ["job", "title", "occupation"],
-    URL: ["url", "website", "link"],
-    Boolean: ["boolean", "status", "flag"],
-    Medical_Tumor: ["tumor", "tumor_location", "tumor_size", "tumor_type"],
-    Medical_Scan: ["scan", "mri", "xray", "radiology", "imaging"],
-    Medical_Diagnosis: ["diagnosis", "cancer", "disease"],
-    Medical_Treatment: ["treatment", "surgery", "chemo", "therapy"],
-    Follow_Up: ["follow_up", "interval", "revisit"],
-  };
-
-  // Prepare fuzzy matching with Fuse.js
-  const fuse = new Fuse(Object.entries(columnCategories), {
-    keys: ["1"],
-    threshold: 0.3,
-  });
-
+const generateDataset = (
+  columns: { name: string; type: string }[],
+  no_of_rows: number
+) => {
   return Array.from({ length: no_of_rows }, () => {
     const row: Record<string, any> = {};
 
-    columns.forEach((col) => {
-      const lowerCol = col.toLowerCase();
-      const match = fuse.search(lowerCol)?.[0]?.item?.[0] || "Unknown";
-
-      switch (match) {
-        case "ID":
-          row[col] = faker.string.uuid();
+    columns.forEach(({ name, type }) => {
+      switch (type) {
+        case "uuid":
+          row[name] = faker.string.uuid();
           break;
-        case "Name":
-          row[col] = faker.person.fullName();
+        case "name":
+          row[name] = faker.person.fullName();
           break;
-        case "Email":
-          row[col] = faker.internet.email();
+        case "email":
+          row[name] = faker.internet.email();
           break;
-        case "Phone":
-          row[col] = faker.phone.number();
+        case "phone":
+          row[name] = faker.phone.number();
           break;
-        case "Address":
-          row[col] = faker.location.streetAddress();
+        case "address":
+          row[name] = faker.location.streetAddress();
           break;
-        case "City":
-          row[col] = faker.location.city();
+        case "city":
+          row[name] = faker.location.city();
           break;
-        case "Country":
-          row[col] = faker.location.country();
+        case "country":
+          row[name] = faker.location.country();
           break;
-        case "Age":
-          row[col] = faker.number.int({ min: 18, max: 90 });
+        case "number":
+        case "age":
+          row[name] = faker.number.int({ min: 18, max: 90 });
           break;
-        case "Date":
-          row[col] = faker.date.past().toISOString().split("T")[0];
+        case "date":
+          row[name] = faker.date.past().toISOString().split("T")[0];
           break;
-        case "Gender":
-          row[col] = faker.helpers.arrayElement(["Male", "Female", "Other"]);
+        case "gender":
+          row[name] = faker.helpers.arrayElement(["Male", "Female", "Other"]);
           break;
-        case "Price":
-          row[col] = faker.finance.amount({ min: 1000, max: 100000, dec: 2 });
+        case "jobTitle":
+          row[name] = faker.person.jobTitle();
           break;
-        case "Company":
-          row[col] = faker.company.name();
+        case "price":
+        case "salary":
+        case "finance.amount":
+          row[name] = faker.finance.amount({ min: 1000, max: 100000, dec: 2 });
           break;
-        case "Job":
-          row[col] = faker.person.jobTitle();
+        case "boolean":
+          row[name] = faker.datatype.boolean();
           break;
-        case "URL":
-          row[col] = faker.internet.url();
+        case "company":
+          row[name] = faker.company.name();
           break;
-        case "Boolean":
-          row[col] = faker.datatype.boolean();
+        case "job":
+          row[name] = faker.person.jobTitle();
           break;
-        case "Medical_Tumor":
-          row[col] = faker.helpers.arrayElement([
-            "Brain",
-            "Lung",
-            "Breast",
-            "Colon",
-            "Liver",
-            "Kidney",
-          ]);
+        case "url":
+          row[name] = faker.internet.url();
           break;
-        case "Medical_Scan":
-          row[col] = faker.date.past({ years: 5 }).toISOString().split("T")[0];
+        case "text":
+          row[name] = faker.lorem.sentence();
           break;
-        case "Medical_Diagnosis":
-          row[col] = faker.helpers.arrayElement([
-            "Benign",
-            "Malignant",
-            "Stage 1",
-            "Stage 2",
-            "Stage 3",
-            "Stage 4",
-          ]);
+        case "paragraph":
+          row[name] = faker.lorem.paragraph();
           break;
-        case "Medical_Treatment":
-          row[col] = faker.helpers.arrayElement([
-            "Surgery",
-            "Chemotherapy",
-            "Radiotherapy",
-            "Immunotherapy",
-          ]);
+        case "word":
+          row[name] = faker.word.noun();
           break;
-        case "Follow_Up":
-          row[col] = faker.number.int({ min: 3, max: 24 }) + " months";
+        case "image":
+          row[name] = faker.image.url();
+          break;
+        case "color":
+          row[name] = faker.color.rgb();
+          break;
+        case "file":
+          row[name] = faker.system.filePath();
+          break;
+        case "macAddress":
+          row[name] = faker.internet.mac();
+          break;
+        case "ipAddress":
+          row[name] = faker.internet.ip();
+          break;
+        case "currency":
+          row[name] = faker.finance.currencyCode();
+          break;
+        case "account":
+          row[name] = faker.finance.account();
+          break;
+        case "iban":
+          row[name] = faker.finance.iban();
+          break;
+        case "creditCard":
+          row[name] = faker.finance.creditCardNumber();
+          break;
+        case "time":
+          row[name] = faker.time.recent();
+          break;
+        case "timezone":
+          row[name] = faker.time.timezone();
+          break;
+        case "latitude":
+          row[name] = faker.location.latitude();
+          break;
+        case "longitude":
+          row[name] = faker.location.longitude();
+          break;
+        case "region":
+          row[name] = faker.location.region();
+          break;
+        case "companySuffix":
+          row[name] = faker.company.suffix();
+          break;
+        case "userAgent":
+          row[name] = faker.internet.userAgent();
+          break;
+        case "dateTime":
+          row[name] = faker.date.past();
+          break;
+        case "phoneNumber":
+          row[name] = faker.phone.number();
+          break;
+        case "locale":
+          row[name] = faker.locale;
+          break;
+        case "countryCode":
+          row[name] = faker.address.countryCode();
+          break;
+        case "addressWithPostalCode":
+          row[name] =
+            faker.location.streetAddress() + ", " + faker.location.zipCode();
           break;
         default:
-          row[col] = faker.word.noun();
+          row[name] = faker.word.noun();
       }
     });
 
@@ -160,15 +182,19 @@ export async function POST(req: NextRequest) {
       messages: [
         {
           role: "user",
-          content: `You are an expert in dataset creation. Suggest ${no_of_columns} structured column names for a dataset based on this project: ${desc}. And give just the names of the columns and nothing else consider giving number like 1. 2..`,
+          content: `You are an expert in dataset creation. Suggest ${no_of_columns} structured column names with data types for Faker.js data generation. Make sure the data types align with Faker.js functions (e.g., "1. Name - name", "2. Email - email", "3. Age - number", "4. Date of Birth - date", "5. Phone - phone", "6. Company - company").  The response should only contain numbered column names with their corresponding data types, nothing else.  For categorical values, use "category".  For true/false values, use "boolean".  For IDs, use "uuid".  For monetary values, use "finance.amount".  For job-related values, use "jobTitle".  For location-based values, use "city", "country", or "address".  For medical-related fields, use "medical_tumor", "medical_diagnosis", "medical_scan".For URLs, use "internet.url".For any other data types, use "word.noun".If you are unsure about a data type, use "word.noun".for project: ${desc}`,
         },
       ],
     });
+    console.log("Response:", response);
 
-    const columnNames = extractColumnNames(response.message.content);
-    if (columnNames.length === 0) throw new Error("No column names found");
+    const columnNamesWithTypes = extractColumnsWithTypes(
+      response.message.content
+    );
+    if (columnNamesWithTypes.length === 0)
+      throw new Error("No column names found");
 
-    const dataset = generateDataset(columnNames, no_of_rows);
+    const dataset = generateDataset(columnNamesWithTypes, no_of_rows);
 
     const formattedData = formatDataset(dataset, type);
 

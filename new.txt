@@ -1,0 +1,246 @@
+import { NextRequest, NextResponse } from "next/server";
+import ollama from "ollama";
+import { writeFileSync } from "fs";
+import { parse as json2csv } from "json2csv";
+import { Builder } from "xml2js";
+import path from "path";
+import { faker } from "@faker-js/faker";
+
+const extractColumnsWithTypes = (
+  responseText: string
+): { name: string; type: string }[] => {
+  const matches = responseText.match(/\d+\.\s(.*?)\s-\s(.*?)(?=\n|$)/g);
+  return matches
+    ? matches.map((m) => {
+        const [_, name, type] = m.match(/\d+\.\s(.*?)\s-\s(.*)/) || [];
+        return { name: name.trim(), type: type.trim().toLowerCase() };
+      })
+    : [];
+};
+
+const generateDataset = (
+  columns: { name: string; type: string }[],
+  no_of_rows: number
+) => {
+  return Array.from({ length: no_of_rows }, () => {
+    const row: Record<string, any> = {};
+
+    columns.forEach(({ name, type }) => {
+      switch (type) {
+        case "uuid":
+          row[name] = faker.string.uuid();
+          break;
+        case "name":
+          row[name] = faker.person.fullName();
+          break;
+        case "email":
+          row[name] = faker.internet.email();
+          break;
+        case "phone":
+          row[name] = faker.phone.number();
+          break;
+        case "address":
+          row[name] = faker.location.streetAddress();
+          break;
+        case "city":
+          row[name] = faker.location.city();
+          break;
+        case "country":
+          row[name] = faker.location.country();
+          break;
+        case "number":
+        case "age":
+          row[name] = faker.number.int({ min: 18, max: 90 });
+          break;
+        case "date":
+          row[name] = faker.date.past().toISOString().split("T")[0];
+          break;
+        case "gender":
+          row[name] = faker.helpers.arrayElement(["Male", "Female", "Other"]);
+          break;
+        case "jobTitle":
+          row[name] = faker.person.jobTitle();
+          break;
+        case "price":
+        case "salary":
+        case "finance.amount":
+          row[name] = faker.finance.amount({ min: 1000, max: 100000, dec: 2 });
+          break;
+        case "boolean":
+          row[name] = faker.datatype.boolean();
+          break;
+        case "company":
+          row[name] = faker.company.name();
+          break;
+        case "job":
+          row[name] = faker.person.jobTitle();
+          break;
+        case "url":
+          row[name] = faker.internet.url();
+          break;
+        case "text":
+          row[name] = faker.lorem.sentence();
+          break;
+        case "paragraph":
+          row[name] = faker.lorem.paragraph();
+          break;
+        case "word":
+          row[name] = faker.word.noun();
+          break;
+        case "image":
+          row[name] = faker.image.url();
+          break;
+        case "color":
+          row[name] = faker.color.rgb();
+          break;
+        case "file":
+          row[name] = faker.system.filePath();
+          break;
+        case "macAddress":
+          row[name] = faker.internet.mac();
+          break;
+        case "ipAddress":
+          row[name] = faker.internet.ip();
+          break;
+        case "currency":
+          row[name] = faker.finance.currencyCode();
+          break;
+        case "account":
+          row[name] = faker.finance.accountNumber();
+          break;
+        case "iban":
+          row[name] = faker.finance.iban();
+          break;
+        case "creditCard":
+          row[name] = faker.finance.creditCardNumber();
+          break;
+        case "time":
+          row[name] = faker.date.recent().toISOString();
+          break;
+        case "timezone":
+          row[name] = faker.date.timeZone();
+          break;
+        case "latitude":
+          row[name] = faker.location.latitude();
+          break;
+        case "longitude":
+          row[name] = faker.location.longitude();
+          break;
+        case "region":
+          row[name] = faker.location.state();
+          break;
+        case "companySuffix":
+          row[name] = faker.company.name();
+          break;
+        case "userAgent":
+          row[name] = faker.internet.userAgent();
+          break;
+        case "dateTime":
+          row[name] = faker.date.past();
+          break;
+        case "phoneNumber":
+          row[name] = faker.phone.number();
+          break;
+        case "locale":
+          row[name] = faker.helpers.arrayElement(["en", "fr", "de", "es"]);
+          break;
+        case "countryCode":
+          row[name] = faker.address.countryCode();
+          break;
+        case "addressWithPostalCode":
+          row[name] =
+            faker.location.streetAddress() + ", " + faker.location.zipCode();
+          break;
+        default:
+          row[name] = faker.word.noun();
+      }
+    });
+
+    return row;
+  });
+};
+
+const formatDataset = (data: any[], type: string) => {
+  if (type === "csv") {
+    return json2csv(data);
+  } else if (type === "json") {
+    return JSON.stringify(data, null, 2);
+  } else if (type === "xml") {
+    const builder = new Builder();
+    return builder.buildObject({ dataset: { record: data } });
+  }
+  throw new Error("Invalid format type");
+};
+
+export async function POST(req: NextRequest) {
+  try {
+    const { desc, no_of_rows, no_of_columns, type, goal } = await req.json();
+
+    const response = await ollama.chat({
+      model: "deepseek",
+      messages: [
+        {
+          role: "user",
+          content: `You are an expert in dataset creation. Your job is to suggest ${no_of_columns} structured, domain-relevant column names (excluding the final "Target" column) with accurate data types compatible with Faker.js for high-quality synthetic dataset generation.
+    
+    Project Description: ${desc}
+    
+    Goal of the Dataset: ${goal}
+    
+    Important Instructions:
+    1. Return output ONLY in the format: "1. column_name - data_type"
+    2. Use **Faker.js-compatible data types** only, such as:
+       - name, email, number, date, phone, company, boolean, category
+       - finance.amount, jobTitle, address, city, country, internet.url
+       - Additional types: uuid, text, paragraph, word, image, color, file, macAddress, ipAddress, currency, account, iban, creditCard, time, timezone, latitude, longitude, region, companySuffix, userAgent, dateTime, phoneNumber, locale, countryCode, addressWithPostalCode, etc.
+    3. All column names must be in **snake_case**, meaningful, unique, and aligned with the project context.
+    4. Do not repeat similar or redundant data types unless necessary for the domain.
+    5. If the dataset involves **prediction**, **classification**, or **detection**, include one final column named **"target"** with type **"category"**.
+    6. For the "target" column, provide a sample array of **possible class values** (e.g., ["spam", "not_spam"]).
+    7. Return exactly ${
+      no_of_columns + 1
+    } total columns, including the final "target" column.
+    8. Do not include any explanations or commentary — return only the numbered list of column names and their types, followed by the "target" sample values.
+    
+    Example Output:
+    1. user_id - uuid  
+    2. registration_date - date  
+    3. user_email - email  
+    ...  
+    ${no_of_columns}. purchase_intent_score - number  
+    ${no_of_columns + 1}. target - category  
+    Target values: ["interested", "not_interested"]`,
+        },
+      ],
+    });
+
+    console.log("Response:", response);
+
+    const columnNamesWithTypes = extractColumnsWithTypes(
+      response.message.content
+    );
+    if (columnNamesWithTypes.length === 0)
+      throw new Error("No column names found");
+
+    const dataset = generateDataset(columnNamesWithTypes, no_of_rows);
+
+    const formattedData = formatDataset(dataset, type);
+
+    const filePath = path.join("./tmp", `dataset.${type}`);
+    writeFileSync(filePath, formattedData);
+
+    const fileBuffer = Buffer.from(formattedData, "utf-8");
+    return new NextResponse(fileBuffer, {
+      headers: {
+        "Content-Type": `text/${type}`,
+        "Content-Disposition": `attachment; filename="dataset.${type}"`,
+      },
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    return NextResponse.json(
+      { error: "Failed to generate dataset" },
+      { status: 500 }
+    );
+  }
+}
